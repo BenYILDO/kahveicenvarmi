@@ -5,15 +5,12 @@ import io
 # Başlık
 st.title("Veri Yükleme ve Görselleştirme Arayüzü")
 
-# Dosya yükleme
-uploaded_file = st.file_uploader("Veri dosyanızı yükleyin (CSV veya XLSX formatında)", type=["csv", "xlsx"])
+# Dosya yükleme (yalnızca CSV formatında)
+uploaded_file = st.file_uploader("Veri dosyanızı yükleyin (yalnızca CSV formatında)", type=["csv"])
 
 if uploaded_file:
-    # Dosya türüne göre veriyi yükle
-    if uploaded_file.name.endswith("csv"):
-        data = pd.read_csv(uploaded_file)
-    elif uploaded_file.name.endswith("xlsx"):
-        data = pd.read_excel(uploaded_file)
+    # Dosyayı veri çerçevesine yükle
+    data = pd.read_csv(uploaded_file)
     
     # Veri önizlemesi
     st.subheader("Yüklenen Veri:")
@@ -54,4 +51,4 @@ if uploaded_file:
         st.line_chart(date_sales)
 
 else:
-    st.info("Lütfen bir veri dosyası yükleyin.")
+    st.info("Lütfen bir CSV veri dosyası yükleyin.")
