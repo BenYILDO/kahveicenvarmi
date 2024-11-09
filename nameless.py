@@ -3,7 +3,7 @@ import pandas as pd
 import io
 
 # Başlık
-st.title("Kahve Satış Verisi Görselleştirme Arayüzü")
+st.title("Dinamik Veri Görselleştirme Arayüzü")
 
 # Dosya yükleme (sadece CSV formatında)
 uploaded_file = st.file_uploader("Veri dosyanızı yükleyin (yalnızca CSV formatında)", type=["csv"])
@@ -28,26 +28,34 @@ if uploaded_file:
         mime="text/csv",
     )
 
-    # Temel Görselleştirme Seçenekleri
+    # Dinamik Görselleştirme Seçenekleri
     st.subheader("Görselleştirme Seçenekleri")
 
-    # Kahve türüne göre para miktarı
-    if 'coffee_name' in data.columns and 'money' in data.columns:
-        st.subheader("Kahve Türüne Göre Toplam Gelir")
-        coffee_sales = data.groupby("coffee_name")["money"].sum()
-        st.bar_chart(coffee_sales)
+    # Sütunları inceleyip görselleştirme yapalım
+    numeric_columns = data.select_dtypes(include='number').columns.tolist()
+    date_columns = data.select_dtypes(include='datetime').columns.tolist()
+    categorical_columns = data.select_dtypes(include='object').columns.tolist()
 
-    # Nakit/Kart türüne göre toplam gelir
-    if 'cash_type' in data.columns and 'money' in data.columns:
-        st.subheader("Ödeme Türüne Göre Toplam Gelir")
-        payment_type_sales = data.groupby("cash_type")["money"].sum()
-        st.bar_chart(payment_type_sales)
-
-    # Tarihe göre gelir trendi
-    if 'date' in data.columns and 'money' in data.columns:
-        st.subheader("Tarihe Göre Gelir Trendi")
-        data['date'] = pd.to_datetime(data['date'], errors='coerce')
-        date_sales = data.groupby("date")["money"].sum()
+    # Sayısal bir sütunu kategorik bir sütuna göre gruplandırarak toplam almak
+    if len(numeric_columns) > 0 and len(categorical_columns) > 0:
+        st.subheader("Kategorik ve Sayısal Sütunlara Göre Toplam Görselleştirme")
+        
+        selected_category = st.selectbox("Kategorik sütun seçin", categorical_columns)
+        selected_numeric = st.selectbox("Sayısal sütun seçin", numeric_columns)
+        
+        category_sales = data.groupby(selected_category)[selected_numeric].sum()
+        st.bar_chart(category_sales)
+    
+    # Tarihsel bir trende göre çizgi grafiği (eğer tarih verisi varsa)
+    if len(date_columns) > 0 and len(numeric_columns) > 0:
+        st.subheader("Tarihsel Trende Göre Sayısal Verilerin Görselleştirilmesi")
+        
+        selected_date = st.selectbox("Tarih sütununu seçin", date_columns)
+        selected_numeric_for_trend = st.selectbox("Sayısal sütun seçin", numeric_columns, key="trend")
+        
+        # Tarih sütununu datetime formatına çevirme
+        data[selected_date] = pd.to_datetime(data[selected_date], errors='coerce')
+        date_sales = data.groupby(selected_date)[selected_numeric_for_trend].sum()
         st.line_chart(date_sales)
 
 else:
