@@ -3,9 +3,9 @@ import pandas as pd
 import io
 
 # Başlık
-st.title("Veri Yükleme ve Görselleştirme Arayüzü")
+st.title("Kahve Satış Verisi Görselleştirme Arayüzü")
 
-# Dosya yükleme (yalnızca CSV formatında)
+# Dosya yükleme (sadece CSV formatında)
 uploaded_file = st.file_uploader("Veri dosyanızı yükleyin (yalnızca CSV formatında)", type=["csv"])
 
 if uploaded_file:
@@ -31,23 +31,23 @@ if uploaded_file:
     # Temel Görselleştirme Seçenekleri
     st.subheader("Görselleştirme Seçenekleri")
 
-    # Ürün kategorisine göre satış miktarı
-    if 'product_category' in data.columns and 'transaction_qty' in data.columns:
-        st.subheader("Ürün Kategorisine Göre Toplam Satış Miktarı")
-        category_sales = data.groupby("product_category")["transaction_qty"].sum()
-        st.bar_chart(category_sales)
+    # Kahve türüne göre para miktarı
+    if 'coffee_name' in data.columns and 'money' in data.columns:
+        st.subheader("Kahve Türüne Göre Toplam Gelir")
+        coffee_sales = data.groupby("coffee_name")["money"].sum()
+        st.bar_chart(coffee_sales)
 
-    # Mağaza lokasyonlarına göre ortalama birim fiyat
-    if 'store_location' in data.columns and 'unit_price' in data.columns:
-        st.subheader("Mağaza Lokasyonlarına Göre Ortalama Birim Fiyat")
-        location_price = data.groupby("store_location")["unit_price"].mean()
-        st.bar_chart(location_price)
+    # Nakit/Kart türüne göre toplam gelir
+    if 'cash_type' in data.columns and 'money' in data.columns:
+        st.subheader("Ödeme Türüne Göre Toplam Gelir")
+        payment_type_sales = data.groupby("cash_type")["money"].sum()
+        st.bar_chart(payment_type_sales)
 
-    # Tarihe göre satış miktarı trendi
-    if 'transaction_date' in data.columns and 'transaction_qty' in data.columns:
-        st.subheader("Tarihe Göre Satış Miktarı Trendi")
-        data['transaction_date'] = pd.to_datetime(data['transaction_date'], errors='coerce')
-        date_sales = data.groupby("transaction_date")["transaction_qty"].sum()
+    # Tarihe göre gelir trendi
+    if 'date' in data.columns and 'money' in data.columns:
+        st.subheader("Tarihe Göre Gelir Trendi")
+        data['date'] = pd.to_datetime(data['date'], errors='coerce')
+        date_sales = data.groupby("date")["money"].sum()
         st.line_chart(date_sales)
 
 else:
